@@ -1,10 +1,7 @@
-import QtQuick 2.0
+class Api {
+  private static apiKey = '145fdf6a8b5cda51dc51a7f49393052e';
 
-Item {
-
-  property string apiKey: '145fdf6a8b5cda51dc51a7f49393052e';
-
-  function getTracks(dataModel, name) {
+  static getTracks(dataModel, name) {
     var request = new XMLHttpRequest()
     request.open('GET', `http://ws.audioscrobbler.com/2.0/?method=track.search&track=${name}&api_key=${this.apiKey}&format=json`, true);
     request.onreadystatechange = function() {
@@ -15,10 +12,9 @@ Item {
                 var json = JSON.parse(request.responseText)
                 for (var item of json.results.trackmatches.track){
                     dataModel.append({
-                      "name": resize(item.name, 55),
-                      "artist": resize(item.artist, 55),
-                      "listeners": item.listeners,
-                      "mbid": item.mbid
+                      "name": Api.resize(item.name, 55),
+                      "artist": Api.resize(item.artist, 55),
+                      "listeners": item.listeners
                     })
                 }
             } else {
@@ -31,7 +27,7 @@ Item {
     request.send()
   }
 
-  function getTrackInfo(dataModel, mbid, track, artist) {
+  static getTrackInfo(dataModel, track, artist) {
     var request = new XMLHttpRequest()
     var modifiedTrack = track.replace('&', '%26')
     var modifiedArtist = artist.replace('&', '%26')
@@ -43,8 +39,8 @@ Item {
                 var track = JSON.parse(request.responseText).track
                 dataModel.clear()
                 dataModel.append({
-                  "name": resize(track.name, 55),
-                  "artist": resize(track.artist.name, 55),
+                  "name": Api.resize(track.name, 55),
+                  "artist": Api.resize(track.artist.name, 55),
                   "listeners": track.listeners,
                   "album": (track.album ? track.album.title : "")
                 })
@@ -64,9 +60,11 @@ Item {
    * @param {number} size - Максимальная длина
    * @returns {string} Отформатированная строка
    */
-  function resize (text, size) {
+  private static resize (text, size) {
     return text.length <= size 
         ? text 
         : text.substr(0, size) + "...";
   }
 }
+
+export default Api;

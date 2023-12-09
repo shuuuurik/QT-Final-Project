@@ -1,12 +1,7 @@
-import QtQuick 2.0
-
-Item {
-
-  property string apiKey: '145fdf6a8b5cda51dc51a7f49393052e';
-
-  function getTracks(dataModel, name) {
+class Api {
+  static getTracks(dataModel, name) {
     var request = new XMLHttpRequest()
-    request.open('GET', `http://ws.audioscrobbler.com/2.0/?method=track.search&track=${name}&api_key=${this.apiKey}&format=json`, true);
+    request.open('GET', `http://ws.audioscrobbler.com/2.0/?method=track.search&track=${name}&api_key=${Api.apiKey}&format=json`, true);
     request.onreadystatechange = function() {
         if (request.readyState === XMLHttpRequest.DONE) {
             if (request.status && request.status === 200) {
@@ -17,8 +12,7 @@ Item {
                     dataModel.append({
                       "name": resize(item.name, 55),
                       "artist": resize(item.artist, 55),
-                      "listeners": item.listeners,
-                      "mbid": item.mbid
+                      "listeners": item.listeners
                     })
                 }
             } else {
@@ -31,11 +25,11 @@ Item {
     request.send()
   }
 
-  function getTrackInfo(dataModel, mbid, track, artist) {
+  static getTrackInfo(dataModel, track, artist) {
     var request = new XMLHttpRequest()
     var modifiedTrack = track.replace('&', '%26')
     var modifiedArtist = artist.replace('&', '%26')
-    request.open('GET', `http://ws.audioscrobbler.com/2.0/?method=track.getInfo&track=${modifiedTrack}&artist=${modifiedArtist}&api_key=${this.apiKey}&format=json`, true);
+    request.open('GET', `http://ws.audioscrobbler.com/2.0/?method=track.getInfo&track=${modifiedTrack}&artist=${modifiedArtist}&api_key=${Api.apiKey}&format=json`, true);
     
     request.onreadystatechange = function() {
         if (request.readyState === XMLHttpRequest.DONE) {
@@ -64,9 +58,11 @@ Item {
    * @param {number} size - Максимальная длина
    * @returns {string} Отформатированная строка
    */
-  function resize (text, size) {
+  static resize (text, size) {
     return text.length <= size 
         ? text 
         : text.substr(0, size) + "...";
   }
 }
+Api.apiKey = '145fdf6a8b5cda51dc51a7f49393052e';
+export default Api;
