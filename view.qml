@@ -46,23 +46,57 @@ Window {
                 width: parent.width / 3
                 height: parent.height
 
-                TextField {
-                    id: query
-                    width: parent.width - 10
-                    height: 30
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    
-                    placeholderText: "Введите название трека"
-                    rightInset: 10
-                    font.pointSize: 12
+                Row {
+                    width: parent.width
+                    height: 100
+
+                    TextField {
+                        id: trackQuery
+                        width: parent.width - 50
+                        height: 30
+                        
+                        placeholderText: "Введите название трека"
+                        font.pointSize: 12
+                        onTextChanged: {
+                            trackQueryButton.enabled = (text == '') ? false : true;
+                        }
+                    }
+
+                    Button {
+                        id: trackQueryButton
+                        enabled: false
+                        text: "Искать"
+                        font.pointSize: 12
+                        onClicked: {
+                            api.getTracksByName(dataModel, trackQuery.text)
+                        }
+                    }
                 }
 
-                Button {
-                    text: "Искать"
-                    font.pointSize: 12
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    onClicked: {
-                        api.getTracks(dataModel, query.text)
+                Row {
+                    width: parent.width
+                    height: 100
+
+                    TextField {
+                        id: artistQuery
+                        width: parent.width - 50
+                        height: 30
+                        
+                        placeholderText: "Введите имя исполнителя"
+                        font.pointSize: 12
+                        onTextChanged: {
+                            artistQueryButton.enabled = (text == '') ? false : true;
+                        }
+                    }
+                    
+                    Button {
+                        id: artistQueryButton
+                        text: "Искать"
+                        enabled: false
+                        font.pointSize: 12
+                        onClicked: {
+                            api.getTracksByArtist(dataModel, artistQuery.text)
+                        }
                     }
                 }
             }
