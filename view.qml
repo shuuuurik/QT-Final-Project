@@ -28,7 +28,7 @@ Window {
                         currentTrackDescription.visible = false;
                     } 
                     currentTrackListeners.text = `<b>Прослушали: </b> ${currentTrack.listeners}`;
-                    currentTrackDuration.text = `<b>Длительность: </b> ${currentTrack.duration}`;
+                    currentTrackDuration.text = `<b>Длительность: </b> ${api.msToTime(currentTrack.duration)}`;
                     currentTrackAlbum.text = currentTrack.album ? `<b>Альбом:</b> ${currentTrack.album}` : '';
                     currentTrackAlbumImage.source = currentTrack.albumImage;
                     stackPage.currentIndex = 1;
@@ -49,6 +49,7 @@ Window {
                 Row {
                     width: parent.width
                     height: 100
+                    spacing: 5
 
                     TextField {
                         id: trackQuery
@@ -57,14 +58,11 @@ Window {
                         
                         placeholderText: "Введите название трека"
                         font.pointSize: 12
-                        onTextChanged: {
-                            trackQueryButton.enabled = (text == '') ? false : true;
-                        }
                     }
 
                     Button {
                         id: trackQueryButton
-                        enabled: false
+                        enabled: { trackQuery.text == '' ? false : true}
                         text: "Искать"
                         font.pointSize: 12
                         onClicked: {
@@ -76,6 +74,7 @@ Window {
                 Row {
                     width: parent.width
                     height: 100
+                    spacing: 5
 
                     TextField {
                         id: artistQuery
@@ -84,18 +83,40 @@ Window {
                         
                         placeholderText: "Введите имя исполнителя"
                         font.pointSize: 12
-                        onTextChanged: {
-                            artistQueryButton.enabled = (text == '') ? false : true;
-                        }
                     }
                     
                     Button {
                         id: artistQueryButton
                         text: "Искать"
-                        enabled: false
+                        enabled: { artistQuery.text == '' ? false : true}
                         font.pointSize: 12
                         onClicked: {
                             api.getTracksByArtist(dataModel, artistQuery.text)
+                        }
+                    }
+                }
+
+                Row {
+                    width: parent.width
+                    height: 100
+                    spacing: 5
+
+                    TextField {
+                        id: albumQuery
+                        width: parent.width - 50
+                        height: 30
+
+                        placeholderText: "Введите название альбома"
+                        font.pointSize: 12
+                    }
+                    
+                    Button {
+                        id: albumQueryButton
+                        text: "Искать"
+                        enabled: { albumQuery.text == '' ? false : true}
+                        font.pointSize: 12
+                        onClicked: {
+                            api.getTracksByAlbum(dataModel, albumQuery.text)
                         }
                     }
                 }
@@ -137,14 +158,22 @@ Window {
                             width: parent.width
                             wrapMode: Text.WordWrap
                             font.pointSize: 10
+                            visible: {model.listeners ? true : false}
                             text: `<b>Прослушиваний:</b> ${model.listeners}`
+                        }
+                        Text {
+                            width: parent.width
+                            wrapMode: Text.WordWrap
+                            font.pointSize: 10
+                            visible: {model.duration ? true : false}
+                            text: `<b>Длительность:</b> ${api.msToTime(model.duration)}`
                         }
                         Button {
                             id: detailsButton
                             text: "Подробнее"
                             anchors.horizontalCenter: parent.horizontalCenter
                             onClicked: {
-                                api.getTrackInfo(currentTrackModel, model.mbid, model.name, model.artist);
+                                api.getTrackInfo(currentTrackModel, model.name, model.artist);
                             }
                         }
                     }
@@ -203,7 +232,6 @@ Window {
             
             Image {
                 id: currentTrackAlbumImage
-                anchors.horizontalCenter: parent.horizontalCenter
                 width: 174
                 height: 174
                 // fillMode: Image.PreserveAspectFit
