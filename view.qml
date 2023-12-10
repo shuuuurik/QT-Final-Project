@@ -5,7 +5,7 @@ import QtQuick.Layouts
 
 Window {
     visible: true
-    width: 800
+    width: 900
     height: 480
     title: qsTr("Last.fm API")
 
@@ -66,7 +66,8 @@ Window {
                         text: "Искать"
                         font.pointSize: 12
                         onClicked: {
-                            api.getTracksByName(dataModel, trackQuery.text)
+                            labelNotFound.flag = true;
+                            api.getTracksByName(dataModel, trackQuery.text);
                         }
                     }
                 }
@@ -91,7 +92,8 @@ Window {
                         enabled: { artistQuery.text == '' ? false : true}
                         font.pointSize: 12
                         onClicked: {
-                            api.getTracksByArtist(dataModel, artistQuery.text)
+                            labelNotFound.flag = true;
+                            api.getTracksByArtist(dataModel, artistQuery.text);
                         }
                     }
                 }
@@ -116,7 +118,8 @@ Window {
                         enabled: { albumQuery.text == '' ? false : true}
                         font.pointSize: 12
                         onClicked: {
-                            api.getTracksByAlbum(dataModel, albumQuery.text)
+                            labelNotFound.flag = true;
+                            api.getTracksByAlbum(dataModel, albumQuery.text);
                         }
                     }
                 }
@@ -132,6 +135,16 @@ Window {
                 width: parent.width * 2 / 3
                 spacing: 5
                 model: dataModel
+                Label {
+                    id: labelNotFound
+                    height: 30
+                    anchors.centerIn: parent
+                    color: "red"
+                    text: "К сожалению, по данному запросу треков не найдено"
+                    font.pointSize: 12
+                    property bool flag: false
+                    visible: { flag && dataModel.count == 0 ? true : false }
+                }
                 delegate: Rectangle {
                     width: parent.width - 50
                     height: 100
@@ -166,7 +179,7 @@ Window {
                             wrapMode: Text.WordWrap
                             font.pointSize: 10
                             visible: {model.duration ? true : false}
-                            text: `<b>Длительность:</b> ${api.msToTime(model.duration)}`
+                            text: `<b>Длительность:</b> ${api.secondsToTime(model.duration)}`
                         }
                         Button {
                             id: detailsButton
@@ -237,6 +250,15 @@ Window {
                 // fillMode: Image.PreserveAspectFit
                 source: ''
             }
+        }
+        Component.onCompleted: {
+            dataModel.append({
+                "name": null,
+                "artist": null,
+                "listeners": null,
+                "duration": null,
+            });
+            dataModel.clear();
         }
     }
 }

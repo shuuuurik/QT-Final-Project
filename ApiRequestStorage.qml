@@ -17,8 +17,7 @@ Item {
                     dataModel.append({
                       "name": item.name, //resize(item.name, 55),
                       "artist": item.artist, //resize(item.artist, 55),
-                      "listeners": item.listeners,
-                      "duration": null
+                      "listeners": item.listeners
                     })
                 }
             } else {
@@ -44,8 +43,7 @@ Item {
                     dataModel.append({
                       "name": item.name, //resize(item.name, 55),
                       "artist": item.artist, //resize(item.artist, 55),
-                      "listeners": item.listeners,
-                      "duration": null
+                      "listeners": item.listeners
                     })
                 }
             } else {
@@ -92,7 +90,6 @@ Item {
                     dataModel.append({
                       "name": item.name,
                       "artist": item.artist.name,
-                      "listeners": null,
                       "duration": item.duration
                     })
                   }
@@ -162,12 +159,25 @@ Item {
   /**
    * Функция, переводящая время из милисекунд в удобочитаемое время в минутах и секундах
    * @param {string | number} ms - Входное время в милисекундах
-   * @returns {string} Отформатированная время
+   * @returns {string} Отформатированное время
    */
   function msToTime (ms) {
     var duration = parseInt(ms)
     var seconds = Math.floor((duration / 1000) % 60),
       minutes = Math.floor((duration / (1000 * 60)) % 60)
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+    return minutes + ":" + seconds;
+  }
+
+  /**
+   * Функция, переводящая время из секунд в удобочитаемое время в минутах и секундах
+   * @param {string | number} seconds - Входное время в секундах
+   * @returns {string} Отформатированное время
+   */
+  function secondsToTime (seconds) {
+    var duration = parseInt(seconds)
+    var seconds = Math.floor(duration % 60),
+      minutes = Math.floor(duration / 60)
     seconds = (seconds < 10) ? "0" + seconds : seconds;
     return minutes + ":" + seconds;
   }
