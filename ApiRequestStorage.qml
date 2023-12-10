@@ -15,8 +15,8 @@ Item {
                 var json = JSON.parse(request.responseText)
                 for (var item of json.results.trackmatches.track){
                     dataModel.append({
-                      "name": resize(item.name, 55),
-                      "artist": resize(item.artist, 55),
+                      "name": item.name, //resize(item.name, 55),
+                      "artist": item.artist, //resize(item.artist, 55),
                       "listeners": item.listeners,
                       "mbid": item.mbid
                     })
@@ -41,12 +41,25 @@ Item {
         if (request.readyState === XMLHttpRequest.DONE) {
             if (request.status && request.status === 200) {
                 var track = JSON.parse(request.responseText).track
+
+                var imageUrl = null;
+                if (track.album) {
+                  for(var image of track.album.image) {
+                    if (image.size === 'large') {
+                      imageUrl = image['#text'];
+                    }
+                  }
+                }
+
                 dataModel.clear()
                 dataModel.append({
-                  "name": resize(track.name, 55),
-                  "artist": resize(track.artist.name, 55),
+                  "name": track.name,//resize(track.name, 55),
+                  "artist": track.artist.name,//resize(track.artist.name, 55),
+                  "description": (track?.wiki?.summary ? track.wiki.summary.replace('Read more on Last.fm', '').slice(0,-1) : '') ,
                   "listeners": track.listeners,
-                  "album": (track.album ? track.album.title : "")
+                  "duration": msToTime(track.duration),
+                  "album": (track.album ? track.album.title : ''),
+                  "albumImage": (imageUrl ?? '')
                 })
             } else {
                 console.log("HTTP:", request.status, request.statusText)
@@ -59,7 +72,7 @@ Item {
   }
 
   /**
-   * Метод, обрезающий входную строку, если ее длина превышает заданное значение
+   * Функция, обрезающая входную строку, если ее длина превышает заданное значение
    * @param {string} text - Входная строка
    * @param {number} size - Максимальная длина
    * @returns {string} Отформатированная строка
@@ -68,5 +81,18 @@ Item {
     return text.length <= size 
         ? text 
         : text.substr(0, size) + "...";
+  }
+
+  /**
+   * Функция, переводящая время из милисекунд в удобочитаемое время в минутах и секундах
+   * @param {string | number} ms - Входное время в милисекундах
+   * @returns {string} Отформатированная время
+   */
+  function msToTime (ms) {
+    var duration = parseInt(ms)
+    var seconds = Math.floor((duration / 1000) % 60),
+      minutes = Math.floor((duration / (1000 * 60)) % 60)
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+    return minutes + ":" + seconds;
   }
 }

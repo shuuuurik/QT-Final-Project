@@ -19,12 +19,18 @@ Window {
             onCountChanged: {
                 if (currentTrackModel.count) {
                     var currentTrack = currentTrackModel.get(0)
-                    currentTrackName.text = `<b>Название:</b> ${currentTrack.name}`
-                    currentTrackListeners.text = `<b>Прослушали: </b> ${currentTrack.listeners}`
-                    currentTrackArtist.text = `<b>Исполнитель:</b> ${currentTrack.artist}`
-                    if (currentTrack.album){
-                        currentTrackAlbum.text = `<b>Альбом:</b> ${currentTrack.album}`
-                    }
+                    currentTrackName.text = `<b>Название:</b> ${currentTrack.name}`;
+                    currentTrackArtist.text = `<b>Исполнитель:</b> ${currentTrack.artist}`;
+                    if (currentTrack.description) { 
+                        currentTrackDescription.visible = true; 
+                        currentTrackDescription.text = `<b>Описание:</b> ${currentTrack.description}` 
+                    } else {
+                        currentTrackDescription.visible = false;
+                    } 
+                    currentTrackListeners.text = `<b>Прослушали: </b> ${currentTrack.listeners}`;
+                    currentTrackDuration.text = `<b>Длительность: </b> ${currentTrack.duration}`;
+                    currentTrackAlbum.text = currentTrack.album ? `<b>Альбом:</b> ${currentTrack.album}` : '';
+                    currentTrackAlbumImage.source = currentTrack.albumImage;
                     stackPage.currentIndex = 1;
                 }
             }
@@ -33,7 +39,6 @@ Window {
         Row {
             anchors.topMargin: 20
             anchors.leftMargin: 20
-            // spacing: 10
             anchors.fill: parent
 
             Column {
@@ -86,13 +91,13 @@ Window {
                             width: parent.width
                             wrapMode: Text.WordWrap
                             font.pointSize: 10
-                            text: `<b>Название:</b> ${model.name}`
+                            text: `<b>Название:</b> ${api.resize(model.name, 55)}`
                         }
                         Text {
                             width: parent.width
                             wrapMode: Text.WordWrap
                             font.pointSize: 10
-                            text: `<b>Исполнитель:</b> ${model.artist}`
+                            text: `<b>Исполнитель:</b> ${api.resize(model.artist, 55)}`
                         }
                         Text {
                             width: parent.width
@@ -132,13 +137,25 @@ Window {
                 font.pointSize: 10
             }
             Text {
+                id: currentTrackArtist
+                width: parent.width
+                wrapMode: Text.WordWrap
+                font.pointSize: 10
+            }
+            Text {
+                id: currentTrackDescription
+                width: parent.width
+                wrapMode: Text.WordWrap
+                font.pointSize: 10
+            }
+            Text {
                 id: currentTrackListeners
                 width: parent.width
                 wrapMode: Text.WordWrap
                 font.pointSize: 10
             }
             Text {
-                id: currentTrackArtist
+                id: currentTrackDuration
                 width: parent.width
                 wrapMode: Text.WordWrap
                 font.pointSize: 10
@@ -148,6 +165,15 @@ Window {
                 width: parent.width
                 wrapMode: Text.WordWrap
                 font.pointSize: 10
+            }
+            
+            Image {
+                id: currentTrackAlbumImage
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 174
+                height: 174
+                // fillMode: Image.PreserveAspectFit
+                source: ''
             }
         }
     }
