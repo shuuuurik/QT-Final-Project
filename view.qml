@@ -4,6 +4,9 @@ import QtQuick.Window
 import QtQuick.Layouts
 import QtQuick.LocalStorage
 import "Database.js" as JS
+import "components" as Components
+import "utils" as Utils
+import "pages" as Pages
 
 Window {
     visible: true
@@ -11,35 +14,39 @@ Window {
     height: 480
     title: qsTr("Last.fm API")
 
-    MyTabBar {id: bar}
-    ApiRequestStorage {id: api}
+    Utils.ApiRequestStorage { id: api }
+    Utils.FormatFunctions { id: helper }
+
+    Components.MyTabBar {id: bar}
+
     StackLayout {
         id: stackPage
         anchors.fill: parent
+        anchors.topMargin: 30
 
         ListModel {
             id: currentTrackModel
             onCountChanged: {
                 if (currentTrackModel.count) {
                     var currentTrack = currentTrackModel.get(0)
-                    currentTrackName.text = `<b>Название:</b> ${currentTrack.name}`;
-                    currentTrackArtist.text = `<b>Исполнитель:</b> ${currentTrack.artist}`;
+                    detailsPage.currentTrackName = `<b>Название:</b> ${currentTrack.name}`;
+                    detailsPage.currentTrackArtist = `<b>Исполнитель:</b> ${currentTrack.artist}`;
                     if (currentTrack.description) { 
-                        currentTrackDescription.visible = true; 
-                        currentTrackDescription.text = `<b>Описание:</b> ${currentTrack.description}` 
+                        detailsPage.currentTrackDescription.visible = true; 
+                        detailsPage.currentTrackDescription.text = `<b>Описание:</b> ${currentTrack.description}` 
                     } else {
-                        currentTrackDescription.visible = false;
+                        detailsPage.currentTrackDescription.visible = false;
                     } 
-                    currentTrackListeners.text = `<b>Прослушали: </b> ${currentTrack.listeners}`;
-                    currentTrackDuration.text = `<b>Длительность: </b> ${api.msToTime(currentTrack.duration)}`;
-                    currentTrackAlbum.text = currentTrack.album ? `<b>Альбом:</b> ${currentTrack.album}` : '';
-                    
+                    detailsPage.currentTrackListeners = `<b>Прослушали: </b> ${currentTrack.listeners}`;
+                    detailsPage.currentTrackDuration = `<b>Длительность: </b> ${helper.msToTime(currentTrack.duration)}`;
+                    detailsPage.currentTrackAlbum = currentTrack.album ? `<b>Альбом:</b> ${currentTrack.album}` : '';
                     if (currentTrack.albumImage) {
-                        currentTrackAlbumImage.visible = true;
-                        currentTrackAlbumImage.source = currentTrack.albumImage;
+                        detailsPage.currentTrackAlbumImage.visible = true;
+                        detailsPage.currentTrackAlbumImage.source = currentTrack.albumImage;
                     }
-                    else currentTrackAlbumImage.visible = false;
-
+                    else {
+                        detailsPage.currentTrackAlbumImage.visible = false;
+                    }
                     stackPage.currentIndex = 1;
 
                     // Выключить добавление в избранное, когда элемент уже добавлен
@@ -58,83 +65,11 @@ Window {
                 width: parent.width / 3
                 height: parent.height
 
-                Row {
-                    width: parent.width
-                    height: 100
-                    spacing: 5
+                Components.QueryInput { inputPlaceholder: "Введите название трека"; apiMethod: "getTracksByName" }
 
-                    TextField {
-                        id: trackQuery
-                        width: parent.width - 50
-                        height: 30
-                        
-                        placeholderText: "Введите название трека"
-                        font.pointSize: 12
-                    }
+                Components.QueryInput { inputPlaceholder: "Введите имя исполнителя"; apiMethod: "getTracksByArtist" }
 
-                    Button {
-                        id: trackQueryButton
-                        enabled: { trackQuery.text == '' ? false : true}
-                        text: "Искать"
-                        font.pointSize: 12
-                        onClicked: {
-                            labelNotFound.flag = true;
-                            api.getTracksByName(dataModel, trackQuery.text);
-                        }
-                    }
-                }
-
-                Row {
-                    width: parent.width
-                    height: 100
-                    spacing: 5
-
-                    TextField {
-                        id: artistQuery
-                        width: parent.width - 50
-                        height: 30
-                        
-                        placeholderText: "Введите имя исполнителя"
-                        font.pointSize: 12
-                    }
-                    
-                    Button {
-                        id: artistQueryButton
-                        text: "Искать"
-                        enabled: { artistQuery.text == '' ? false : true}
-                        font.pointSize: 12
-                        onClicked: {
-                            labelNotFound.flag = true;
-                            api.getTracksByArtist(dataModel, artistQuery.text);
-                        }
-                    }
-                }
-
-                Row {
-                    width: parent.width
-                    height: 100
-                    spacing: 5
-
-                    TextField {
-                        id: albumQuery
-                        width: parent.width - 50
-                        height: 30
-
-                        placeholderText: "Введите название альбома"
-                        font.pointSize: 12
-                    }
-                    
-                    Button {
-                        id: albumQueryButton
-                        text: "Искать"
-                        enabled: { albumQuery.text == '' ? false : true}
-                        font.pointSize: 12
-                        onClicked: {
-                            labelNotFound.flag = true;
-                            api.getTracksByAlbum(dataModel, albumQuery.text);
-                        }
-                    }
-                }
+                Components.QueryInput { inputPlaceholder: "Введите название альбома"; apiMethod: "getTracksByAlbum" }
             }
 
             ListModel {
@@ -161,125 +96,11 @@ Window {
                     property bool flag: false
                     visible: { flag && dataModel.count == 0 ? true : false }
                 }
-                delegate: Rectangle {
-                    width: parent.width - 50
-                    height: 100
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    color: "lightgray"
-                    radius: 10
-                    Column {
-                        anchors.centerIn: parent
-                        width: parent.width - 20
-                        spacing: 3
-                        Text {
-                            width: parent.width
-                            wrapMode: Text.WordWrap
-                            font.pointSize: 10
-                            text: `<b>Название:</b> ${api.resize(model.name, 55)}`
-                        }
-                        Text {
-                            width: parent.width
-                            wrapMode: Text.WordWrap
-                            font.pointSize: 10
-                            text: `<b>Исполнитель:</b> ${api.resize(model.artist, 55)}`
-                        }
-                        Text {
-                            width: parent.width
-                            wrapMode: Text.WordWrap
-                            font.pointSize: 10
-                            visible: {model.listeners ? true : false}
-                            text: `<b>Прослушиваний:</b> ${model.listeners}`
-                        }
-                        Text {
-                            width: parent.width
-                            wrapMode: Text.WordWrap
-                            font.pointSize: 10
-                            visible: {model.duration ? true : false}
-                            text: `<b>Длительность:</b> ${api.secondsToTime(model.duration)}`
-                        }
-                        Button {
-                            id: detailsButton
-                            text: "Подробнее"
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            onClicked: {
-                                api.getTrackInfo(currentTrackModel, model.name, model.artist);
-                            }
-                        }
-                    }
-                    border { color: "black"; width: 5 }
-                }
+                delegate: Components.ListViewDelegate {}
             }
         }
         
-        Column {
-            anchors.fill: parent
-            anchors.topMargin: 20
-            anchors.leftMargin: 20
-            spacing: 3
-            Button {
-                id: btn
-                text: "Вернуться назад"
-                anchors.left: parent.left
-                onClicked: stackPage.currentIndex = 0
-            }
-            Text {
-                id: currentTrackName
-                width: parent.width
-                wrapMode: Text.WordWrap
-                font.pointSize: 10
-            }
-            Text {
-                id: currentTrackArtist
-                width: parent.width
-                wrapMode: Text.WordWrap
-                font.pointSize: 10
-            }
-            Text {
-                id: currentTrackDescription
-                width: parent.width
-                wrapMode: Text.WordWrap
-                font.pointSize: 10
-            }
-            Text {
-                id: currentTrackListeners
-                width: parent.width
-                wrapMode: Text.WordWrap
-                font.pointSize: 10
-            }
-            Text {
-                id: currentTrackDuration
-                width: parent.width
-                wrapMode: Text.WordWrap
-                font.pointSize: 10
-            }
-            Text {
-                id: currentTrackAlbum
-                width: parent.width
-                wrapMode: Text.WordWrap
-                font.pointSize: 10
-            }
-            
-            Image {
-                id: currentTrackAlbumImage
-                width: 174
-                height: 174
-                // fillMode: Image.PreserveAspectFit
-                source: ''
-            }
-
-            Button {
-                id: favoritesButton
-                text: "Добавить в избранное"
-                onClicked: {
-                    var track = currentTrackModel.get(0)
-                    JS.dbAddTrack(track.name, track.artist, track.album, 
-                            track.listeners, track.duration, track.description, track.albumImage)
-
-                    // Выключить добавление в избранное, когда элемент уже добавлен
-                    favoritesButton.enabled = false
-                }
-            }
-        }
+        Pages.TrackDetailsPage { id: detailsPage }
 
         Row {
             anchors.topMargin: 20
@@ -310,13 +131,13 @@ Window {
                             width: parent.width
                             wrapMode: Text.WordWrap
                             font.pointSize: 10
-                            text: `<b>Название:</b> ${api.resize(model.name, 55)}`
+                            text: `<b>Название:</b> ${helper.resize(model.name, 55)}`
                         }
                         Text {
                             width: parent.width
                             wrapMode: Text.WordWrap
                             font.pointSize: 10
-                            text: `<b>Исполнитель:</b> ${api.resize(model.artist, 55)}`
+                            text: `<b>Исполнитель:</b> ${helper.resize(model.artist, 55)}`
                         }
                         Text {
                             width: parent.width
@@ -429,10 +250,10 @@ Window {
     Component.onCompleted: {
         JS.dbInit()
         dataModel.append({
-            "name": null,
-            "artist": null,
-            "listeners": null,
-            "duration": null,
+            "name": 'andrey',
+            "artist": 'andrey',
+            "listeners": 'andrey',
+            "duration": 'andrey',
         });
         dataModel.clear();
     }

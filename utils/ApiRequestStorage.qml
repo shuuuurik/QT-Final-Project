@@ -132,7 +132,7 @@ Item {
                   "listeners": track.listeners,
                   "duration": track.duration,
                   "album": (track.album ? track.album.title : ''),
-                  "albumImage": imageUrl
+                  "albumImage": (imageUrl ?? '')
                 })
             } else {
                 console.log("HTTP:", request.status, request.statusText)
@@ -142,43 +142,5 @@ Item {
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     request.setRequestHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.5993.732 YaBrowser/23.11.1.732 Yowser/2.5 Safari/537.36');
     request.send()
-  }
-
-  /**
-   * Функция, обрезающая входную строку, если ее длина превышает заданное значение
-   * @param {string} text - Входная строка
-   * @param {number} size - Максимальная длина
-   * @returns {string} Отформатированная строка
-   */
-  function resize (text, size) {
-    return text.length <= size 
-        ? text 
-        : text.substr(0, size) + "...";
-  }
-
-  /**
-   * Функция, переводящая время из милисекунд в удобочитаемое время в минутах и секундах
-   * @param {string | number} ms - Входное время в милисекундах
-   * @returns {string} Отформатированное время
-   */
-  function msToTime (ms) {
-    var duration = parseInt(ms)
-    var seconds = Math.floor((duration / 1000) % 60),
-      minutes = Math.floor((duration / (1000 * 60)) % 60)
-    seconds = (seconds < 10) ? "0" + seconds : seconds;
-    return minutes + ":" + seconds;
-  }
-
-  /**
-   * Функция, переводящая время из секунд в удобочитаемое время в минутах и секундах
-   * @param {string | number} seconds - Входное время в секундах
-   * @returns {string} Отформатированное время
-   */
-  function secondsToTime (seconds) {
-    var duration = parseInt(seconds)
-    var seconds = Math.floor(duration % 60),
-      minutes = Math.floor(duration / 60)
-    seconds = (seconds < 10) ? "0" + seconds : seconds;
-    return minutes + ":" + seconds;
   }
 }
