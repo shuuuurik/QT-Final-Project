@@ -7,7 +7,7 @@ import "Database.js" as JS
 
 Window {
     visible: true
-    width: 800
+    width: 900
     height: 480
     title: qsTr("Last.fm API")
 
@@ -31,7 +31,7 @@ Window {
                         currentTrackDescription.visible = false;
                     } 
                     currentTrackListeners.text = `<b>Прослушали: </b> ${currentTrack.listeners}`;
-                    currentTrackDuration.text = `<b>Длительность: </b> ${currentTrack.duration}`;
+                    currentTrackDuration.text = `<b>Длительность: </b> ${api.msToTime(currentTrack.duration)}`;
                     currentTrackAlbum.text = currentTrack.album ? `<b>Альбом:</b> ${currentTrack.album}` : '';
                     currentTrackAlbumImage.source = currentTrack.albumImage;
                     stackPage.currentIndex = 1;
@@ -52,23 +52,81 @@ Window {
                 width: parent.width / 3
                 height: parent.height
 
-                TextField {
-                    id: query
-                    width: parent.width - 10
-                    height: 30
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    
-                    placeholderText: "Введите название трека"
-                    rightInset: 10
-                    font.pointSize: 12
+                Row {
+                    width: parent.width
+                    height: 100
+                    spacing: 5
+
+                    TextField {
+                        id: trackQuery
+                        width: parent.width - 50
+                        height: 30
+                        
+                        placeholderText: "Введите название трека"
+                        font.pointSize: 12
+                    }
+
+                    Button {
+                        id: trackQueryButton
+                        enabled: { trackQuery.text == '' ? false : true}
+                        text: "Искать"
+                        font.pointSize: 12
+                        onClicked: {
+                            labelNotFound.flag = true;
+                            api.getTracksByName(dataModel, trackQuery.text);
+                        }
+                    }
                 }
 
-                Button {
-                    text: "Искать"
-                    font.pointSize: 12
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    onClicked: {
-                        api.getTracks(dataModel, query.text)
+                Row {
+                    width: parent.width
+                    height: 100
+                    spacing: 5
+
+                    TextField {
+                        id: artistQuery
+                        width: parent.width - 50
+                        height: 30
+                        
+                        placeholderText: "Введите имя исполнителя"
+                        font.pointSize: 12
+                    }
+                    
+                    Button {
+                        id: artistQueryButton
+                        text: "Искать"
+                        enabled: { artistQuery.text == '' ? false : true}
+                        font.pointSize: 12
+                        onClicked: {
+                            labelNotFound.flag = true;
+                            api.getTracksByArtist(dataModel, artistQuery.text);
+                        }
+                    }
+                }
+
+                Row {
+                    width: parent.width
+                    height: 100
+                    spacing: 5
+
+                    TextField {
+                        id: albumQuery
+                        width: parent.width - 50
+                        height: 30
+
+                        placeholderText: "Введите название альбома"
+                        font.pointSize: 12
+                    }
+                    
+                    Button {
+                        id: albumQueryButton
+                        text: "Искать"
+                        enabled: { albumQuery.text == '' ? false : true}
+                        font.pointSize: 12
+                        onClicked: {
+                            labelNotFound.flag = true;
+                            api.getTracksByAlbum(dataModel, albumQuery.text);
+                        }
                     }
                 }
             }
@@ -87,6 +145,16 @@ Window {
                 width: parent.width * 2 / 3
                 spacing: 5
                 model: dataModel
+                Label {
+                    id: labelNotFound
+                    height: 30
+                    anchors.centerIn: parent
+                    color: "red"
+                    text: "К сожалению, по данному запросу треков не найдено"
+                    font.pointSize: 12
+                    property bool flag: false
+                    visible: { flag && dataModel.count == 0 ? true : false }
+                }
                 delegate: Rectangle {
                     width: parent.width - 50
                     height: 100
@@ -113,14 +181,22 @@ Window {
                             width: parent.width
                             wrapMode: Text.WordWrap
                             font.pointSize: 10
+                            visible: {model.listeners ? true : false}
                             text: `<b>Прослушиваний:</b> ${model.listeners}`
+                        }
+                        Text {
+                            width: parent.width
+                            wrapMode: Text.WordWrap
+                            font.pointSize: 10
+                            visible: {model.duration ? true : false}
+                            text: `<b>Длительность:</b> ${api.secondsToTime(model.duration)}`
                         }
                         Button {
                             id: detailsButton
                             text: "Подробнее"
                             anchors.horizontalCenter: parent.horizontalCenter
                             onClicked: {
-                                api.getTrackInfo(currentTrackModel, model.mbid, model.name, model.artist);
+                                api.getTrackInfo(currentTrackModel, model.name, model.artist);
                             }
                         }
                     }
@@ -179,7 +255,6 @@ Window {
             
             Image {
                 id: currentTrackAlbumImage
-                anchors.horizontalCenter: parent.horizontalCenter
                 width: 174
                 height: 174
                 // fillMode: Image.PreserveAspectFit
@@ -342,5 +417,14 @@ Window {
     }
     Component.onCompleted: {
         JS.dbInit()
+        Component.onCompleted: {
+            dataModel.append({
+                "name": null,
+                "artist": null,
+                "listeners": null,
+                "duration": null,
+            });
+            dataModel.clear();
+        }
     }
 }
