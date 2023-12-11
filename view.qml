@@ -33,7 +33,13 @@ Window {
                     currentTrackListeners.text = `<b>Прослушали: </b> ${currentTrack.listeners}`;
                     currentTrackDuration.text = `<b>Длительность: </b> ${api.msToTime(currentTrack.duration)}`;
                     currentTrackAlbum.text = currentTrack.album ? `<b>Альбом:</b> ${currentTrack.album}` : '';
-                    currentTrackAlbumImage.source = currentTrack.albumImage;
+                    
+                    if (currentTrack.albumImage) {
+                        currentTrackAlbumImage.visible = true;
+                        currentTrackAlbumImage.source = currentTrack.albumImage;
+                    }
+                    else currentTrackAlbumImage.visible = false;
+
                     stackPage.currentIndex = 1;
 
                     // Выключить добавление в избранное, когда элемент уже добавлен
@@ -337,8 +343,13 @@ Window {
                                     currentTrackListeners2.text = `<b>Прослушали: </b> ${currentTrack.listeners}`;
                                     currentTrackDuration2.text = `<b>Длительность: </b> ${currentTrack.duration}`;
                                     currentTrackAlbum2.text = currentTrack.album ? `<b>Альбом:</b> ${currentTrack.album}` : '';
-                                    currentTrackAlbumImage2.source = currentTrack.image;
-                                    stackPage.currentIndex = 4;
+                                    if (currentTrack.image) {
+                                        currentTrackAlbumImage2.visible = true;
+                                        currentTrackAlbumImage2.source = currentTrack.image;
+                                    }
+                                    else currentTrackAlbumImage2.visible = false;
+
+                                    stackPage.currentIndex = 3;
                                 }
                             }
                             Button {
@@ -365,7 +376,7 @@ Window {
                 id: comeBackButton
                 text: "Вернуться назад"
                 anchors.left: parent.left
-                onClicked: stackPage.currentIndex = 3
+                onClicked: stackPage.currentIndex = 2
             }
             Text {
                 id: currentTrackName2
@@ -417,14 +428,12 @@ Window {
     }
     Component.onCompleted: {
         JS.dbInit()
-        Component.onCompleted: {
-            dataModel.append({
-                "name": null,
-                "artist": null,
-                "listeners": null,
-                "duration": null,
-            });
-            dataModel.clear();
-        }
+        dataModel.append({
+            "name": null,
+            "artist": null,
+            "listeners": null,
+            "duration": null,
+        });
+        dataModel.clear();
     }
 }

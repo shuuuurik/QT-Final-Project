@@ -132,7 +132,7 @@ Item {
                   "listeners": track.listeners,
                   "duration": track.duration,
                   "album": (track.album ? track.album.title : ''),
-                  "albumImage": (imageUrl ?? '')
+                  "albumImage": imageUrl
                 })
             } else {
                 console.log("HTTP:", request.status, request.statusText)

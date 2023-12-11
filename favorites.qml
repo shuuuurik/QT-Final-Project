@@ -11,9 +11,7 @@ Window {
     height: 480
     title: qsTr("Last.fm API")
 
-    ListModel {
-            id: trackModel 
-        }
+    
 
     ApiRequestStorage {id: api}
 
@@ -86,7 +84,7 @@ Window {
                                     currentTrackDuration.text = `<b>Длительность: </b> ${currentTrack.duration}`;
                                     currentTrackAlbum.text = currentTrack.album ? `<b>Альбом:</b> ${currentTrack.album}` : '';
                                     currentTrackAlbumImage.source = currentTrack.image;
-                                    stackPage.currentIndex = 4;
+                                    stackPage.currentIndex = 1;
                                 }
                             }
                             Button {
