@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Controls
-import "../components" as Components
 
 Column {
   anchors.fill: parent
@@ -66,6 +65,4 @@ Column {
       // fillMode: Image.PreserveAspectFit
       source: ''
   }
-
-  Components.AddToFavorites {}
 }

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.LocalStorage
 import "../Database.js" as JS
 
 Button {

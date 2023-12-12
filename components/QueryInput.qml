@@ -25,7 +25,7 @@ Row {
         text: "Искать"
         font.pointSize: 12
         onClicked: {
-            labelNotFound.flag = true;
+            stackPage.isLabelNotFoundVisible = true;
             switch(parent.apiMethod) {
                 case 'getTracksByName':
                     api.getTracksByName(dataModel, query.text);
