@@ -23,7 +23,7 @@ Window {
         id: stackPage
         anchors.fill: parent
         anchors.topMargin: 30
-        property bool isLabelNotFoundVisible: false
+        property alias isLabelNotFoundVisible: labelNotFound.visible
 
         ListModel {
             id: currentTrackModel
@@ -97,9 +97,6 @@ Window {
                     visible: false
                 }
                 delegate: Components.FoundedTracksList {}
-                onCountChanged: {
-                    labelNotFound.visible = (count == 0 && stackPage.isLabelNotFoundVisible);
-                }
             }
         }
         
@@ -137,7 +134,7 @@ Window {
             "name": 'andrey',
             "artist": 'andrey',
             "listeners": 'andrey',
-            "duration": 'andrey',
+            "duration": 0,
         });
         dataModel.clear();
     }

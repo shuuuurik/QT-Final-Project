@@ -10,6 +10,7 @@ Item {
     request.onreadystatechange = function() {
         if (request.readyState === XMLHttpRequest.DONE) {
             if (request.status && request.status === 200) {
+                stackPage.isLabelNotFoundVisible = false; // прячем надпись
                 dataModel.clear()
   
                 var json = JSON.parse(request.responseText)
@@ -20,6 +21,7 @@ Item {
                       "listeners": item.listeners
                     })
                 }
+                stackPage.isLabelNotFoundVisible = dataModel.count == 0; // показываем надпись, если модель пуста
             } else {
                 console.log("HTTP:", request.status, request.statusText)
             }
@@ -36,6 +38,7 @@ Item {
     request.onreadystatechange = function() {
         if (request.readyState === XMLHttpRequest.DONE) {
             if (request.status && request.status === 200) {
+                stackPage.isLabelNotFoundVisible = false; // прячем надпись
                 dataModel.clear()
   
                 var json = JSON.parse(request.responseText)
@@ -46,6 +49,7 @@ Item {
                       "listeners": item.listeners
                     })
                 }
+                stackPage.isLabelNotFoundVisible = dataModel.count == 0; // показываем надпись, если модель пуста
             } else {
                 console.log("HTTP:", request.status, request.statusText)
             }
@@ -62,13 +66,13 @@ Item {
     request.onreadystatechange = function() {
         if (request.readyState === XMLHttpRequest.DONE) {
             if (request.status && request.status === 200) {
-                //dataModel.clear()
+                stackPage.isLabelNotFoundVisible = false; // прячем надпись
+                dataModel.clear()
 
                 var json = JSON.parse(request.responseText)
                 for (var album of json.results.albummatches.album) {
                   getAlbumInfo(dataModel, album.artist, album.name)
                 }
-                console.log(album.name)
             } else {
                 console.log("HTTP:", request.status, request.statusText)
             }
@@ -87,15 +91,15 @@ Item {
             if (request.status && request.status === 200) {
                 var json = JSON.parse(request.responseText)
                 if (json.album?.tracks?.track) {
-                  dataModel.clear()
                   for (var item of json.album.tracks.track){
                     dataModel.append({
                       "name": item.name,
                       "artist": item.artist.name,
-                      "duration": item.duration ?? Number("0")
+                      "duration": item.duration ?? 0
                     })
                   }
                 }
+                stackPage.isLabelNotFoundVisible = dataModel.count == 0; // показываем надпись, если модель пуста
             } else {
                 console.log("HTTP:", request.status, request.statusText)
             }
